@@ -1,4 +1,4 @@
-# This script
+                                        # This script
 ## Lists the Exposures and SNPs in MR-Base to which we want access.
 ## Accesses the MR base resource and limits the phenotypes to a sensible subset
 ## Performs the single-SNP analyses
@@ -11,7 +11,7 @@
 
 library(dplyr)
 library(magrittr)
-library(NostalgiR)
+
 library(TwoSampleMR)
 library(MRInstruments)
 library(knitr)
@@ -30,8 +30,8 @@ trait_list <- c(
     "Mean cell volume",
     "Haemoglobin concentration",
     "Platelet count",
-    "Urea",
-    "Urate", 
+    "Urea",## not enough GWS instruments
+    "Urate", ## not enough GWS instruments
     "Phosphate", ## not enough GWS instruments
     "Albumin",
     "Bilirubin (E,Z or Z,E)*",
@@ -45,12 +45,12 @@ trait_list <- c(
     "Years of schooling",
     "Cigarettes smoked per day",
     "Weight",
-    "Alcohol dependence",
+    "Alcohol dependence", ## not enough GWS instruments
     "Birth weight",
     "Age at menopause",
     "Age at menarche",
     "Father"
-   
+    
 )
 
 year_list <- c(
@@ -80,7 +80,7 @@ year_list <- c(
     "2015",
     "2014",
     "2016"
-  
+    
 )
 
 
@@ -126,7 +126,7 @@ snps_list <- c(
 ## Accesses the MR base resource and limits the phenotypes to a sensible subset
 
 ## Performs the single-SNP analyses
- traits_by_snps <- extract_outcome_data(snps = snps_list, outcomes = selected_outcomes$id)
+traits_by_snps <- extract_outcome_data(snps = snps_list, outcomes = selected_outcomes$id)
 
 ### Counts, for each, the number of significant associations
 #### First, from the 24 available phenotypes
@@ -147,18 +147,17 @@ capture.output(kable(tbs_padj), file  = "singlesnp_results_top25.md", split = TR
 
 
 for (idvar in setdiff(1:length(selected_outcomes$id), c(7,8,9,14,15,22)) ) {
-uuselsnps <- extract_instruments(selected_outcomes$id[idvar])
-vvselsnps <- extract_outcome_data(snps = uuselsnps$SNP, outcomes = selected_outcomes$id)
-snps_Only <- harmonise_data(exposure_dat = uuselsnps, outcome_dat = vvselsnps )
-mr_out<- mr(snps_Only)
+    uuselsnps <- extract_instruments(selected_outcomes$id[idvar])
+    vvselsnps <- extract_outcome_data(snps = uuselsnps$SNP, outcomes = selected_outcomes$id)
+    snps_Only <- harmonise_data(exposure_dat = uuselsnps, outcome_dat = vvselsnps )
+    mr_out<- mr(snps_Only, method_list=c("mr_ivw"))
+
+    mr_out <- mr_out %>% mutate(.,  bonpv = p.adjust(pval, method = "holm"), fdrqv = p.adjust(pval, method = "fdr"))
+
+    write_csv(mr_out, path = paste0("./genetic_correlations_2smr",selected_outcomes$id[idvar],".csv"))
+
+    capture.output(kable(mr_out), file = paste0("./genetic_correlations_2smr",selected_outcomes$id[idvar],".md"),split = TRUE)
 }
 
 
 
-mr_out <- mr_out %>% mutate(.,  bonpv = p.adjust(pval, method = "holm"), fdrqv = p.adjust(pval, method = "fdr"))
-write_csv(mr_out, path = "./genetic_correlations_2smr.csv")
-capture.output(kable(mr_out), file = "genetic_correlations_2smr.md", split = TRUE)
-direction_out <- directionality_test(mr_out)
-direction_out <- direction_out %>% mutate(.,  bonpv = p.adjust(steiger_pval, method = "holm"), fdrqv = p.adjust(steiger_pval, method = "fdr"))
-write_csv(direction_out, path = "./genetic_correlations_2sdirection.csv")
-capture.output(kable(direction_out), file = "genetic_correlations_2sdirection.md", split = TRUE)
