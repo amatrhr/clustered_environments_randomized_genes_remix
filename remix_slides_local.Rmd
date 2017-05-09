@@ -1,0 +1,109 @@
+---
+title: 'Clustered Environments and Randomized Genes: 10th anniversary Remix'
+author: "C Laurin"
+date: "9 May 2017"
+output:
+  slidy_presentation: default
+  beamer_presentation: default
+---
+
+# Background: The Original Paper
+
+- In 2007, Davey Smith _et al._ analysed intercorrelations among 23 SNPs and 96 nongenetic variables
+- The purpose: test the MR assumption that genetic instruments are uncorrelated with (unmeasured) confounders
+- Using the British Women's Heart and Health Study ($N = 4286$); test of $7021$ correlations 
+- SNPs were the ones that had been typed for BWHHS; and had demonstrated predictive value for other traits  
+- Demonstrated clustering of nongenetic variables and, in general no evidence of non-chance association between SNPs and non-genetic variables
+    + Some residual confounding due to stratification (lactase gene) and some physiological effects (hepatic-lipase, lipoprotein lipase, TNF$\alpha$, CETP, APO_AV, MTHFR)
+
+# The Remix
+- The availability of genetic association data is much wider
+    + Anyone with a Google account and R can perform similar analyses using MR Base
+- Phenotyping is no easier; it is difficult for all members of a consortium to perform identical phenotyping
+    + Can't get phenotypic correlations from MR Base, but 2SMR can be used to estimate genetic correlations 
+
+
+# Methods: Phenotypes and Variants
+- Use the MR Base catalog accessed via the TwoSampleMR package and the website
+    + TwoSampleMR useful for performing the replica analyses
+    + Easier to use the website to pick an adequately-instrumented version of a phenotype (2012 fasting glucose, not 2010 fasting glucose, etc), and to see which of the original paper's SNPs are in the database
+- Used the 'priority' field to pick the version of each phenotype to use (tweaked as noted above)
+    + 70 of the phenotypes from the original paper are simply not present 
+    + Others have proxies (subjective well being for quality of life score, alcohol dependence for drinks per day, etc)
+    + Phenotypes in the catalog that did not have enough instruments for two-sample analyses: urea, urate, phosphate, vitamins C, E, alcohol dependence
+- In total, 23 SNPs and 20 phenotypes 
+
+# Methods: Testing and correction for multiple testing
+- Lookup of SNP-phenotype associations in MR Base catalog of summary statistics
+    + Main analysis: each SNP by each of the 20 pre-specified phenotypes
+    + Followup: How many phenotypes does each SNP predict strongly in the MR Base catalog
+- Genotypic correlations using inverse-variance weighted MR
+    + Using all genome-wide-significant loci for each phenotype
+    + Consider it 'residual correlation'?
+- Control of multiple testing
+    + Use Holm-Bonferroni correction for main analyses, the original paper had a strong null hypothesis to test
+    + Followup: FDR analysis to search for 'unmeasured' confounding, for more conservative MR in future
+        - Use fdrtool to look at the tails of the distribution of $z$-scores compared to a nonparametric ML estimate of the null distribution
+    + Remains a search for something wrong with the _process_, not a source of new hypotheses
+
+
+# Results: SNP-Phenotype Associations
+- 19 of the 598 associations had Bonferroni-corrected p-values less than 0.05, of which 9 were genome-wide significant
+- However, these associations were mostly between e.g. the lipoprotein lipase SNP and serum triglycerides, glucokinase with fasting glucose
+- TNF$\alpha$, lactase, and ESR1 were associated with height ($p<6.1\times 10^{-5}$)
+- TNF$\alpha$ and LTA (same TNF family) were associated with age at menopause ($p < 5.5 \times 10^{-4}$)
+
+
+# Results: SNP-Phenotype Associations (Bonferroni Correction)
+<center>
+![](./bonfiplot.jpg){width=55%}
+</center>
+
+# Results: SNP-Phenotype Associations (FDR)
+<center>
+![](./fdriplot.jpg){width=55%}
+</center>
+
+
+# Results: Following up the seven SNPs
+- Lactase ($rs4988235$), CETP ($rs708272$), APO_AV ($rs3135506$), HL ($rs1800588$), LPL ($rs328$), TNF$\alpha$ ($rs1800629$), MTHFR ($rs1801133$) were identified by the original authors as being correlated with environmental phenotypes
+    + Lactase in particular was thought to represent residual population stratification
+- In this analysis, CETP was strongly associated with many lipid measurements, MTHFR did not have associations in the MR Base catalog (other than glycoproteins), and lactase was associated with lipids (TC) and body size (height, hip circumference)
+
+# Results: The seven SNPs
+
+<center>
+![](./fdr_3_comparison.jpg){width=97.5%}
+</center>
+
+# Results: Genetic correlations
+- The body size measures (height, weight, BMI, birth weight) and lipids (TG, TC) were strongly associated, as expected 
+- Conventional associations (BMI and age at menarche, BMI and urate) were similarly genome-wide significantly associated
+- More interesting, exposure to outcome:
+    + Total cholesterol and serum vitamin E  (+, $p < 2\times 10^{-5}$)
+    + Height and platelet count (+, $p<8\times 10^{-4}$)
+    + Years of schooling, Age at menarche, (-, $p<6.1\times 10^{-3}$)
+    + Height, Years of schooling (+, $p < 1.4\times 10^{-5}$)
+    + BMI, Father's age at death (-, $p< 7.6\times 10^{-3}$)
+
+
+# Results: Genetic correlations (Bonferroni Correction)
+<center>
+![](./gcbonplot.jpg){width=55%}
+</center>
+
+
+# Results: Genetic correlations (FDR)
+<center>
+![](./gcfdrplot.jpg){width=60%}
+</center>
+
+# Conclusions
+- Agreement with the original
+    + The confounder-associated SNPs in the original (lactase and TNF$\alpha$) also predict many variables
+- Genetic correlation of body size with other traits--just like nongenetic analyses
+    + Lactase is a problem for MRs of milk intake
+- Upload this as a comment to the original PLoS article
+- ALOX5AP's SNPs have changed names, haven't checked the remainder (silent errors?)
+- Next steps: getting directionality tests to work, better displays of the evidence
+- Address overlap between consortia, differential adjustment for confounders in substudies 
