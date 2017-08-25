@@ -1,10 +1,9 @@
 ---
 title: 'Clustered Environments and Randomized Genes: 10th anniversary Remix'
 author: "C Laurin"
-date: "9 May 2017"
 output:
-  slidy_presentation: default
-  beamer_presentation: default
+  word_document: default
+  html_document: default
 ---
 
 # Background: The Original Paper
@@ -15,9 +14,11 @@ output:
 - SNPs were the ones that had been typed for BWHHS; and had demonstrated predictive value for other traits  
 - Demonstrated clustering of nongenetic variables and, in general no evidence of non-chance association between SNPs and non-genetic variables
     + Some residual confounding due to stratification (lactase gene) and some physiological effects (hepatic-lipase, lipoprotein lipase, TNF$\alpha$, CETP, APO_AV, MTHFR)
+- These results have recently been replicated at larger scale by Taylor _et al._ in the ALSPAC data, including detailed analysis of genotype-genotype correlations in LD-pruned SNPs
+
 
 # The Remix
-- The availability of genetic association data is much wider
+- Compared to 2007, the availability of genetic association data is much wider
     + Anyone with a Google account and R can perform similar analyses using MR Base
 - Phenotyping is no easier; it is difficult for all members of a consortium to perform identical phenotyping
     + Can't get phenotypic correlations from MR Base, but 2SMR can be used to estimate genetic correlations 
@@ -56,12 +57,12 @@ output:
 
 # Results: SNP-Phenotype Associations (Bonferroni Correction)
 <center>
-![](./bonfiplot.jpg){width=55%}
+![](../bonfiplot.jpg){width=55%}
 </center>
 
 # Results: SNP-Phenotype Associations (FDR)
 <center>
-![](./fdriplot.jpg){width=55%}
+![](../fdriplot.jpg){width=55%}
 </center>
 
 
@@ -73,7 +74,7 @@ output:
 # Results: The seven SNPs
 
 <center>
-![](./fdr_3_comparison.jpg){width=97.5%}
+![](../fdr_3_comparison.jpg){width=97.5%}
 </center>
 
 # Results: Genetic correlations
@@ -89,21 +90,22 @@ output:
 
 # Results: Genetic correlations (Bonferroni Correction)
 <center>
-![](./gcbonplot.jpg){width=55%}
+![](../gcbonplot.jpg){width=55%}
 </center>
 
 
 # Results: Genetic correlations (FDR)
 <center>
-![](./gcfdrplot.jpg){width=60%}
+![](../gcfdrplot.jpg){width=60%}
 </center>
 
 # Conclusions
-- Agreement with the original
+- Agreement with the original and the 2017 replication by Taylor _et al._
     + The confounder-associated SNPs in the original (lactase and TNF$\alpha$) also predict many variables
 - Genetic correlation of body size with other traits--just like nongenetic analyses
     + Lactase is a problem for MRs of milk intake
-- Upload this as a comment to the original PLoS article
-- ALOX5AP's SNPs have changed names, haven't checked the remainder (silent errors?)
-- Next steps: getting directionality tests to work, better displays of the evidence
-- Address overlap between consortia, differential adjustment for confounders in substudies 
+- Taylor _et al._ call for better identification of pleiotropy/residual confounding in polygenic risk scores
+    + FDR analyses are one way to identify pleiotropic paths
+- Next steps
+  + Address overlap between consortia, differential adjustment for confounders in substudies 
+  + ALOX5AP's SNPs have changed names, haven't checked the remainder (silent errors?)
