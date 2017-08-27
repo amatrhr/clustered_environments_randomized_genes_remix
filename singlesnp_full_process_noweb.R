@@ -43,82 +43,15 @@ snps_list <- c(
 
 traits_by_snps <- extract_outcome_data(snps = snps_list, outcomes = unique(ao$id))
 
-# filenames_list <- paste0("mr_base_", snps_list, ".csv")
-# 
-# ### Read each into the filenames list 
-# ### They all have the fdr and bonferroni-corrected 
-# for (idx in 1:length(filenames_list)) {
-#   temporary <- read_csv(filenames_list[idx])
-#   temporary <- temporary %>% mutate(., z = beta/se)
-#   
-#   jpeg(paste0("locfdr",snps_list[idx], ".jpg"), width = 800, height = 1300)
-#   lfdr <- fdrtool(temporary$z[complete.cases(temporary$z)], statistic = "normal")
-#   dev.off()
-#   
-#   print("###~####")
-#   print(snps_list[idx])
-#   print(lfdr$param)
-#   print("!!!!~!!!")
-#   write_csv(temporary, path = paste0("./locfdr", snps_list[idx],".csv"))
-#   
-# }
-# 
-# planned_analyses <- read_csv("./singlesnp_results_top25.csv")
-# strict_sigs <- planned_analyses %>% filter(., bonpv < 0.05) %>% select(., SNP, originalname.outcome, beta.outcome, se.outcome, bonpv) %>% arrange(., bonpv)
-# 
-# 
-# 
-# plannedplot <- planned_analyses %>% select(., SNP, originalname.outcome, bonpv, fdrqv)
-# 
-# bonfiplot <- ggplot(data = plannedplot, aes(x = SNP, y = originalname.outcome, fill = bonpv)) + geom_tile() + theme_minimal() + scale_fill_gradient2(midpoint = 0.025, low = "black", trans = "sqrt", mid = "blue", high = "white" ) + labs(ylab = "Outcome", fill = "p-value", title = "Bonferroni-Corrected p-values") + theme(axis.text.x = element_text(angle = 90, vjust = 0.7))
-# 
-# ggsave("bonfiplot.jpg")
-# 
-# fdriplot <- ggplot(data = plannedplot, aes(x = SNP, y = originalname.outcome, fill = fdrqv)) + geom_tile() + theme_minimal() + scale_fill_gradient2(midpoint = 0.025, low = "black", trans = "sqrt", mid = "blue", high = "white") + labs(ylab = "Outcome", fill = "Q-values", title = "FDR q-values") + theme(axis.text.x = element_text(angle = 90, vjust = 0.7))
-# 
-# ggsave("fdriplot.jpg")
-# topseven <- c("rs4988235",
-#               "rs708272",
-#               "rs662799",
-#               "rs1800588",
-#               "rs328",
-#               "rs1800629",
-#               "rs1801133"
-#               )
-# 
-# 
-# gene_corr <- read_csv("combined_results_2smr_all.csv")
-# 
-# gene_sigs <- gene_corr %>% filter(., bonpv < 0.05)  %>% select(., outcome, exposure, nsnp, b, se, bonpv) %>% arrange(., bonpv, outcome, exposure )
-# 
-# 
-# gcbonbonplot <- ggplot(data = gene_corr, aes(x = exposure, y = outcome, fill = bonpv)) + geom_tile() + theme_minimal() + scale_fill_gradient2(midpoint = 0.025, low = "black", trans = "sqrt", mid = "blue", high = "white") + labs(xlab = "Exposure", ylab = "Outcome", fill = "p-value", title = "Bonferroni-Adjusted p-values") + theme(axis.text.x = element_text(angle = 90, vjust = 0.6))
-# 
-# ggsave("gcbonplot.jpg")
-# 
-# 
-# 
-# gcfdrplot <- ggplot(data = gene_corr, aes(x = exposure, y = outcome, fill = fdrqv)) + geom_tile() + theme_minimal() + scale_fill_gradient2(midpoint = 0.025, low = "black", trans = "sqrt", mid = "blue", high = "white") + labs(xlab = "Exposure", ylab = "Outcome", fill = "q-value", title = "FDR q-values") + theme(axis.text.x = element_text(angle = 90, vjust = 0.6))
-# 
-# ggsave("gcfdrplot.jpg")
-# 
-# outcome_names <- unique(planned_analyses$id.outcome)
-# outfile_list <- paste0("./genetic_correlations_2smr",outcome_names,".csv")
-# 
-# 
-# for (idx in 1:length(outfile_list)) {
-#   if( file.exists(outfile_list[idx])) {
-#   temporary <- read_csv(outfile_list[idx])
-#   temporary <- temporary %>% mutate(., z = b/se)
-#   
-#   jpeg(paste0("locfdr",outcome_names[idx], ".jpg"), width = 800, height = 1300)
-#   lfdr <- fdrtool(temporary$z[complete.cases(temporary$z)], statistic = "normal")
-#   dev.off()
-#   
-#   print("###~####")
-#   print(outfile_list[idx])
-#   print(lfdr$param)
-#   print("!!!!~!!!")
-#   write_csv(temporary, path = paste0("./locfdr", outcome_names[idx],".csv"))
-#   }
-# }
+traits_by_snps$SNP <- stringr::str_to_lower(traits_by_snps$SNP)
+## Within each SNP, compute q-values using fdrtool
+### Then, compute the median q-value within each category for each SNP
+traits_fdrq <- traits_by_snps %>% filter(., !is.na(pval.outcome)) %>% group_by(., SNP) %>% mutate(., fdrq = fdrtool(pval.outcome, statistic = "pvalue")$qval)
+
+traits_fdr_medians_by_subcat <- traits_fdrq %>% do(data.frame(aggregate(data = ., fdrq ~ subcategory.outcome, FUN = "median") ))
+ 
+
+## Heatmap display of median q-values?
+traitq_hm_data <- reshape2::melt(traits_fdr_medians_by_subcat)
+medianq_heatmap <- ggplot( data = traitq_hm_data, aes( x = SNP, y  = subcategory.outcome, fill = log(value, 10)))+ geom_tile()  + theme_minimal() + theme(axis.text.x = element_text(angle = 90 )) + scale_fill_gradient2()
+
