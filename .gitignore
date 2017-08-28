@@ -5,4 +5,4 @@
 .oath
 .pdf
 .httr-oauth
-.Rlocal
+*.Rlocal
