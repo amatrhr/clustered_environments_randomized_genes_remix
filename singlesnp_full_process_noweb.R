@@ -67,7 +67,7 @@ traitq_hm_data <- reshape2::melt(traits_fdr_medians_by_subcat_top7)
 
 traitq_hm_data <- traitq_hm_data %>% mutate(gene_tagged = str_replace_all(SNP, c("rs4988235" = "MCM6" , "rs708272$" = "CETP",  "rs3135506" = "APO_AV",  "rs1800588$" = "HL",   "rs328" = "LPL", "rs1800629" = "TNFa",  "rs1801133" =  "MTHFR"))) %>% arrange(., desc(value))
 
-medianq_heatmap <- ggplot( data = traitq_hm_data, aes( x = gene_tagged, y  = subcategory.outcome, fill = log(value, 10)))+ geom_tile()  + theme_minimal() + theme(axis.text.x = element_text(angle = 90 )) + scale_fill_gradient2()
+medianq_heatmap <- ggplot( data = traitq_hm_data, aes( x = gene_tagged, y  = subcategory.outcome, fill = log(value, 10)))+ geom_tile()  + theme_minimal() + theme(axis.text.x = element_text(angle = 90 )) + scale_fill_gradient2(guide = guide_legend("Log-10 Q-value")) + coord_flip()+ ggtitle("Median Q-value by Phenotypic Category") 
 
 
 #### Look at the individual categories to check number of associations and median p-value
